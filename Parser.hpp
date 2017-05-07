@@ -45,6 +45,8 @@ class Parser
         void factor();
         /* Parses logical condition */
         void relation();
+        /* Parses values inside enum */
+        void enumeration();
 
         /* CHECK AND RECOVERY METHODS */
 
@@ -65,6 +67,8 @@ class Parser
 
         /* Adds variable to list if needed and returns its number */
         int getVariableIdx(const std::string & name);
+        /* Adds variable to act as enum (returns address) */
+        int addVariable(const std::string & name);
 
         /* FIELDS */
 

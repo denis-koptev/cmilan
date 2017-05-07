@@ -15,6 +15,10 @@
 
 enum Token
 {
+    T_ENUM,             // ENUM declaration keyword
+    T_LBRACE,           // "{" for enums declaration start
+    T_RBRACE,          // "}" for enums declaration end
+    T_COMMA,            // "," for enum elements
     T_EOF,              // End of input stream
     T_ILLEGAL,          // Illegal symbol case
     T_IDENTIFIER,       // Identifier

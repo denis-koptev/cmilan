@@ -22,6 +22,10 @@ Scanner::Scanner(std::istream & input_)
     keywords["od"] = T_OD;
     keywords["write"] = T_WRITE;
     keywords["read"] = T_READ;
+    keywords["enum"] = T_ENUM;
+    keywords["{"] = T_LBRACE;
+    keywords["}"] = T_RBRACE;
+    keywords[","] = T_COMMA;
 
     nextChar();
 }
@@ -205,6 +209,21 @@ void Scanner::nextToken()
                 nextChar();
                 break;
             }
+            case '{': {
+                token = T_LBRACE;
+                nextChar();
+                break;
+            }
+            case ',': {
+                token = T_COMMA;
+                nextChar();
+                break;
+            }
+            case '}': {
+                token = T_RBRACE;
+                nextChar();
+                break;
+            }
 
                 // Division is processed earlier
 
@@ -239,5 +258,6 @@ bool Scanner::isIdentifierStart(char c)
 
 bool Scanner::isIdentifierBody(char c)
 {
-    return isalnum(c);
+    // c == ':' is for enums (which act like variables)
+    return isalnum(c) || c == ':';
 }

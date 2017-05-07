@@ -45,6 +45,11 @@ void Parser::statementList()
 void Parser::statement()
 {
     if (checkLexeme(T_IDENTIFIER)) {
+        std::string variable = scanner.getStringValue();
+        if (variable.find(':') != std::string::npos) {
+            reportError("Can not assign enumerations");
+            return;
+        }
         int varAddress = getVariableIdx(scanner.getStringValue());
         nextLexeme();
         matchLexemeSafe(T_ASSIGN);
@@ -83,8 +88,44 @@ void Parser::statement()
         expression();
         matchLexemeSafe(T_RPAREN);
         codegen.emit(PRINT);
+    } else if (matchLexeme(T_ENUM)) {
+        if (!checkLexeme(T_IDENTIFIER)) {
+            reportError("Can not find name for enumeration");
+            return;
+        }
+        // Enums will be added as variables with names 'Container:Value'
+        std::string enumContainer = scanner.getStringValue();
+        nextLexeme();
+        checkLexeme(T_LBRACE);
+        enumeration();
+        matchLexemeSafe(T_RBRACE);
+
     } else {
         reportError("Statement expected");
+    }
+}
+
+// <term> | <term> , <enumeration>
+void Parser::enumeration()
+{
+    std::string enumContainer = scanner.getStringValue();
+    nextLexeme();
+    int counter = 0;
+    while (checkLexeme(T_IDENTIFIER)) {
+        std::string enumVariable = scanner.getStringValue();
+        std::string enumName = enumContainer + ":" + enumVariable;
+        int idx = addVariable(enumContainer + ":" + enumVariable);
+        if (idx == -1) {
+            reportError("Name '" + enumVariable + "' already exists");
+            break;
+        }
+        codegen.emit(PUSH, counter);
+        codegen.emit(STORE, idx);
+        nextLexeme();
+        if (!matchLexeme(T_COMMA)) {
+            break;
+        }
+        counter++;
     }
 }
 
@@ -121,6 +162,11 @@ void Parser::factor()
         codegen.emit(PUSH, val);
     } else if (checkLexeme(T_IDENTIFIER)) {
         int varAddress = getVariableIdx(scanner.getStringValue());
+        if (varAddress == -1) {
+            reportError("Enum was not declared");
+            nextLexeme();
+            return;
+        }
         nextLexeme();
         codegen.emit(LOAD, varAddress);
     } else if (checkLexeme(T_ADDOP) && scanner.getArithmeticValue() == A_MINUS) {
@@ -225,10 +271,23 @@ int Parser::getVariableIdx(const std::string & name)
 {
     VarTable::iterator varTableIter = variables.find(name);
     if (varTableIter == variables.end()) {
+        if (name.find(':') != std::string::npos) { // enum was not initialized
+            return -1;
+        }
         variables[name] = lastVar;
         return lastVar++;
     } else {
         return varTableIter->second;
+    }
+}
+
+int Parser::addVariable(const std::string & name) {
+    VarTable::iterator varTableIter = variables.find(name);
+    if (varTableIter == variables.end()) {
+        variables[name] = lastVar;
+        return lastVar++;
+    } else {
+        return -1; // already existing
     }
 }
 
@@ -246,6 +305,10 @@ void Parser::recover(Token t)
 /* TOKEN TO STRING */
 
 static const std::string tokenNames[] = {
+        "enum",
+        "left brace",
+        "right brace",
+        "comma",
         "end of file",
         "illegal token",
         "identifier",
