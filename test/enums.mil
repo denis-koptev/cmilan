@@ -1,0 +1,57 @@
+BEGIN
+
+	/* Testing declaration */
+
+	ENUM MYENUM {
+		FIRST, SECOND, THIRD
+	};
+
+	/* Testing LOAD */
+
+	WRITE(MYENUM:SECOND);
+
+	/* Testing comparison */
+
+	IF MYENUM:THIRD > 1
+	THEN
+		WRITE(777)
+	FI;
+
+	IF MYENUM:FIRST = 1
+	THEN
+		y := READ
+	FI;
+
+	/* Testing right assignment*/
+
+	z := MYENUM:THIRD;
+
+	/* Testing arithmetic */
+
+	z := z * MYENUM:FIRST + 3;
+
+	/* Illegal assignment. Uncomment to test */
+
+	/*
+	MYENUM:SECOND := 4;
+	*/
+
+	/* Unexisting enum test. Uncomment it */
+
+	/*
+	WRITE(MYENUM:FOURTH);
+	*/
+
+	/* False enum declaration. Uncomment to test */
+
+	/*
+	ENUM FALSEENUM {
+		FIRST, SECOND, FIRST
+	}
+	*/
+	
+	/* Just fine ending */
+
+	WRITE(z)
+
+END
