@@ -1,0 +1,43 @@
+BEGIN
+	
+/* REPEAT_UNTIL & BREAK CHECK */
+
+	a := READ;
+	b := READ;
+
+	REPEAT
+
+		IF a = -1 THEN BREAK FI;
+		IF b = -1 THEN BREAK FI;
+
+		WRITE(a + b);
+
+		b := b + 1
+	UNTIL
+ 
+		a > b
+
+	END_UNTIL;
+
+	WRITE(a);
+	WRITE(b);
+
+/* WHILE & CONTINUE CHECK */
+
+	c := 0;
+	d := 0;
+
+	WHILE c = d DO
+
+		c := READ;
+		d := READ;
+
+                IF c > d*2 THEN
+                        CONTINUE
+                ELSE
+                        WRITE(c);
+			WRITE(d)
+                FI
+	OD
+
+END
